@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Http\{Request, Response};
 
 class OrganizationController extends Controller
 {
@@ -51,7 +50,7 @@ class OrganizationController extends Controller
 
         $organization->delete();
 
-        return response(status: 204);
+        return response(status: Response::HTTP_NO_CONTENT);
     }
 
     private function authorizeUser(Organization $organization, User $user): void
