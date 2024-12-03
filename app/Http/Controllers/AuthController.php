@@ -33,12 +33,6 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $organization = Organization::create([
-            'name' =>  "{$user->name} Organization",
-            'owner_id' => $user->id,
-        ]);
-
-        $organization->users()->attach($user->id, ['role' => 'owner']);
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
