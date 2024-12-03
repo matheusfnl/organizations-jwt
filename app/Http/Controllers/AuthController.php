@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\{LoginRequest, RegisterRequest};
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
@@ -10,12 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function login(Request $request) {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
+    public function login(LoginRequest $request) {
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
@@ -30,14 +26,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(Request $request) {
-        $request->validate([
-            'password' => 'required|same:confirmation_password',
-            'confirmation_password' => 'required',
-            'email' => 'required|email',
-            'name' => 'required',
-        ]);
-
+    public function register(RegisterRequest $request) {
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,

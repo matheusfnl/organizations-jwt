@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OrganizationUser\{StoreRequest, UpdateRequest};
 use App\Models\{Organization, OrganizationUser};
 use App\Models\User;
 use Illuminate\Http\{Request, Response};
@@ -15,18 +16,13 @@ class OrganizationUserController extends Controller
         return OrganizationUser::where('organization_id', $organization->id)->paginate(10);
     }
 
-    public function store(Request $request, Organization $organization)
+    public function store(StoreRequest $request, Organization $organization)
     {
         $this->authorizeUser($organization, $request->user());
 
         if ($request->role === 'owner') {
             abort(Response::HTTP_UNPROCESSABLE_ENTITY, 'Organization can\'t have more than one owner');
         }
-
-        $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'role' => 'required|string|in:' . implode(',', OrganizationUser::TYPES),
-        ]);
 
         $existingRole = OrganizationUser::where('organization_id', $organization->id)
             ->where('user_id', $request->user_id)
@@ -37,7 +33,8 @@ class OrganizationUserController extends Controller
         }
 
         $organizationUser = OrganizationUser::create([
-            ...$validatedData,
+            'user_id' => $request->user_id,
+            'role' => $request->role,
             'organization_id' => $organization->id,
         ]);
 
@@ -53,7 +50,7 @@ class OrganizationUserController extends Controller
         return $organizationUser;
     }
 
-    public function update(Request $request, Organization $organization, string $memberId)
+    public function update(UpdateRequest $request, Organization $organization, string $memberId)
     {
         $this->authorizeUser($organization, $request->user());
 
@@ -62,11 +59,7 @@ class OrganizationUserController extends Controller
         }
 
         $organizationUser = $this->findOrganizationMember($memberId, $organization);
-        $organizationUser->update([
-            ...$request->validate([
-                'role' => 'required|string|in:' . implode(',', OrganizationUser::TYPES),
-            ]),
-        ]);
+        $organizationUser->update(['role' => $request->role]);
 
         return $organizationUser;
     }

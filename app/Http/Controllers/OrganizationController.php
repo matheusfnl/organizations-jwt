@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Organization\OrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\{Request, Response};
@@ -13,11 +14,11 @@ class OrganizationController extends Controller
         return Organization::where('owner_id', $request->user()->id)->paginate(10);
     }
 
-    public function store(Request $request)
+    public function store(OrganizationRequest $request)
     {
         $user = $request->user();
         $organization = Organization::create([
-            ...$request->validate(['name' => 'required|string|max:255']),
+            'name' => $request->name,
             'owner_id' => $user->id,
         ]);
 
@@ -33,13 +34,11 @@ class OrganizationController extends Controller
         return $organization;
     }
 
-    public function update(Request $request, Organization $organization)
+    public function update(OrganizationRequest $request, Organization $organization)
     {
         $this->authorizeUser($organization, $request->user());
 
-        $organization->update([...$request->validate([
-            'name' => 'required|string|max:255'
-        ])]);
+        $organization->update(['name' => $request->name]);
 
         return $organization;
     }
