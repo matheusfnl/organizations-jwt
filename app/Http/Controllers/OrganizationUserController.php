@@ -44,16 +44,16 @@ class OrganizationUserController extends Controller
         return $organizationUser;
     }
 
-    public function show(Request $request, Organization $organization, string $member)
+    public function show(Request $request, Organization $organization, string $memberId)
     {
         $this->authorizeUser($organization, $request->user());
 
-        $organizationUser = $this->findOrganizationMember($member, $organization);
+        $organizationUser = $this->findOrganizationMember($memberId, $organization);
 
         return $organizationUser;
     }
 
-    public function update(Request $request, Organization $organization, string $member)
+    public function update(Request $request, Organization $organization, string $memberId)
     {
         $this->authorizeUser($organization, $request->user());
 
@@ -61,7 +61,7 @@ class OrganizationUserController extends Controller
             abort(Response::HTTP_UNPROCESSABLE_ENTITY, 'Organization can\'t have more than one owner');
         }
 
-        $organizationUser = $this->findOrganizationMember($member, $organization);
+        $organizationUser = $this->findOrganizationMember($memberId, $organization);
         $organizationUser->update([
             ...$request->validate([
                 'role' => 'required|string|in:' . implode(',', OrganizationUser::TYPES),
@@ -71,11 +71,11 @@ class OrganizationUserController extends Controller
         return $organizationUser;
     }
 
-    public function destroy(Request $request, Organization $organization, string $member)
+    public function destroy(Request $request, Organization $organization, string $memberId)
     {
         $this->authorizeUser($organization, $request->user());
 
-        $organizationUser = $this->findOrganizationMember($member, $organization);
+        $organizationUser = $this->findOrganizationMember($memberId, $organization);
         $organizationUser->delete();
 
         return response(status: Response::HTTP_NO_CONTENT);

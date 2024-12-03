@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
@@ -43,6 +44,12 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $organization = Organization::create([
+            'name' =>  "{$user->name} Organization",
+            'owner_id' => $user->id,
+        ]);
+
+        $organization->users()->attach($user->id, ['role' => 'owner']);
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
