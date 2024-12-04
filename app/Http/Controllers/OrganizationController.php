@@ -11,12 +11,12 @@ class OrganizationController extends Controller
 {
     public function index(Request $request)
     {
-        return Organization::where('owner_id', $request->user()->id)->paginate(10);
+        return Organization::where('owner_id', auth()->user()->id)->paginate(10);
     }
 
     public function store(OrganizationRequest $request)
     {
-        $user = $request->user();
+        $user = auth()->user();
         $organization = Organization::create([
             'name' => $request->name,
             'owner_id' => $user->id,
@@ -29,14 +29,14 @@ class OrganizationController extends Controller
 
     public function show(Request $request, Organization $organization)
     {
-        $this->authorizeUser($organization, $request->user());
+        $this->authorizeUser($organization, auth()->user());
 
         return $organization;
     }
 
     public function update(OrganizationRequest $request, Organization $organization)
     {
-        $this->authorizeUser($organization, $request->user());
+        $this->authorizeUser($organization, auth()->user());
 
         $organization->update(['name' => $request->name]);
 
@@ -45,7 +45,7 @@ class OrganizationController extends Controller
 
     public function destroy(Request $request, Organization $organization)
     {
-        $this->authorizeUser($organization, $request->user());
+        $this->authorizeUser($organization, auth()->user());
 
         $organization->delete();
 
