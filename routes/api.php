@@ -11,12 +11,15 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:api')->group(function() {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', fn (Request $request) => auth()->user());
-    Route::get('/organization', fn (Request $request) => auth()->organization());
+
+    Route::group(['prefix' => 'organization'], function() {
+        Route::get('/', fn (Request $request) => auth()->organization());
+        Route::post('/change', [OrganizationController::class, 'change']);
+    });
 
     Route::group(['prefix' => 'organizations'], function() {
         Route::get('/', [OrganizationController::class, 'index']);
         Route::post('/', [OrganizationController::class, 'store']);
-        Route::post('/change', [OrganizationController::class, 'change']);
 
         Route::group(['prefix' => '{organization}'], function() {
             Route::get('/', [OrganizationController::class, 'show']);
