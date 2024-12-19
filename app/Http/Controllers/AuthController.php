@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\{LoginRequest, RegisterRequest};
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -42,9 +42,17 @@ class AuthController extends Controller
     }
 
     private function generateToken(Request $request) {
-        return auth()->attempt([
+        if (! auth()->attempt([
             'email' => $request->email,
             'password' => $request->password,
-        ]);
+        ])) {
+            abort(Response::HTTP_UNAUTHORIZED, 'Unauthorized');
+        }
+
+        $user = auth()->user();
+        $organization = $user->organizations()->first();
+        $token = auth()->claims(['organization_id' => $organization->id])->fromUser($user);
+
+        return $token;
     }
 }
