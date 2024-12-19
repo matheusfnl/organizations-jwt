@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Organization\OrganizationRequest;
+use App\Http\Requests\Organization\{OrganizationRequest, ChangeOrganizationRequest};
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\{Request, Response};
@@ -25,6 +25,30 @@ class OrganizationController extends Controller
         $organization->users()->attach($user->id, ['role' => 'owner']);
 
         return $organization;
+    }
+
+    public function change(ChangeOrganizationRequest $request)
+    {
+        $user = auth()->user();
+
+        if ($request->organization_id === $user->organization_id) {
+            abort(Response::HTTP_UNPROCESSABLE_ENTITY, 'Cannot change to the same organization');
+        }
+
+        $organization = Organization::where('owner_id', $user->id)
+            ->where('id', $request->organization_id)
+            ->first();
+
+        if (!$organization) {
+            abort(Response::HTTP_NOT_FOUND, 'Organization not found');
+        }
+
+        $token = auth()->claims(['organization_id' => $organization->id])->fromUser($user);
+
+        return response()->json([
+            'token' => $token,
+            'user' => $user,
+        ], 201);
     }
 
     public function show(Request $request, Organization $organization)

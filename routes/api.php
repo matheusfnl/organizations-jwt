@@ -16,6 +16,7 @@ Route::middleware('auth:api')->group(function() {
     Route::group(['prefix' => 'organizations'], function() {
         Route::get('/', [OrganizationController::class, 'index']);
         Route::post('/', [OrganizationController::class, 'store']);
+        Route::post('/change', [OrganizationController::class, 'change']);
 
         Route::group(['prefix' => '{organization}'], function() {
             Route::get('/', [OrganizationController::class, 'show']);
