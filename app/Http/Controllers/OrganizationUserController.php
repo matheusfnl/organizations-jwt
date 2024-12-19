@@ -11,15 +11,11 @@ class OrganizationUserController extends Controller
 {
     public function index(Request $request, Organization $organization)
     {
-        $this->authorizeUser($organization);
-
         return OrganizationUser::where('organization_id', $organization->id)->paginate(10);
     }
 
     public function store(StoreRequest $request, Organization $organization)
     {
-        $this->authorizeUser($organization);
-
         if ($request->role === 'owner') {
             abort(Response::HTTP_UNPROCESSABLE_ENTITY, 'Organization can\'t have more than one owner');
         }
@@ -43,8 +39,6 @@ class OrganizationUserController extends Controller
 
     public function show(Request $request, Organization $organization, string $memberId)
     {
-        $this->authorizeUser($organization);
-
         $organizationUser = $this->findOrganizationMember($memberId, $organization);
 
         return $organizationUser;
@@ -52,8 +46,6 @@ class OrganizationUserController extends Controller
 
     public function update(UpdateRequest $request, Organization $organization, string $memberId)
     {
-        $this->authorizeUser($organization);
-
         if ($request->role === 'owner') {
             abort(Response::HTTP_UNPROCESSABLE_ENTITY, 'Organization can\'t have more than one owner');
         }
@@ -66,8 +58,6 @@ class OrganizationUserController extends Controller
 
     public function destroy(Request $request, Organization $organization, string $memberId)
     {
-        $this->authorizeUser($organization);
-
         $organizationUser = $this->findOrganizationMember($memberId, $organization);
         $organizationUser->delete();
 
@@ -84,12 +74,5 @@ class OrganizationUserController extends Controller
         }
 
         return $organizationUser;
-    }
-
-    private function authorizeUser(Organization $organization): void
-    {
-        if ($organization->owner_id !== auth()->id()) {
-            abort(Response::HTTP_FORBIDDEN, 'Unauthorized');
-        }
     }
 }

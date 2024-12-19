@@ -30,10 +30,6 @@ class ProjectController extends Controller
     {
         $this->authorizeOrganization($project);
 
-        if ($project->organization_id !== auth()->payload()->get('organization_id')) {
-            abort(Response::HTTP_UNAUTHORIZED, 'Unauthorized');
-        }
-
         return $project;
     }
 

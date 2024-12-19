@@ -53,15 +53,11 @@ class OrganizationController extends Controller
 
     public function show(Request $request, Organization $organization)
     {
-        $this->authorizeUser($organization);
-
         return $organization;
     }
 
     public function update(OrganizationRequest $request, Organization $organization)
     {
-        $this->authorizeUser($organization);
-
         $organization->update(['name' => $request->name]);
 
         return $organization;
@@ -69,17 +65,8 @@ class OrganizationController extends Controller
 
     public function destroy(Request $request, Organization $organization)
     {
-        $this->authorizeUser($organization);
-
         $organization->delete();
 
         return response(status: Response::HTTP_NO_CONTENT);
-    }
-
-    private function authorizeUser(Organization $organization): void
-    {
-        if ($organization->owner_id !== auth()->id()) {
-            abort(Response::HTTP_UNAUTHORIZED, 'Unauthorized');
-        }
     }
 }

@@ -21,19 +21,21 @@ Route::middleware('auth:api')->group(function() {
         Route::get('/', [OrganizationController::class, 'index']);
         Route::post('/', [OrganizationController::class, 'store']);
 
-        Route::group(['prefix' => '{organization}'], function() {
-            Route::get('/', [OrganizationController::class, 'show']);
-            Route::put('/', [OrganizationController::class, 'update']);
-            Route::delete('/', [OrganizationController::class, 'destroy']);
+        Route::middleware('auth.organization.owner')->group(function() {
+            Route::group(['prefix' => '{organization}'], function() {
+                Route::get('/', [OrganizationController::class, 'show']);
+                Route::put('/', [OrganizationController::class, 'update']);
+                Route::delete('/', [OrganizationController::class, 'destroy']);
 
-            Route::group(['prefix' => 'members'], function() {
-                Route::get('/', [OrganizationUserController::class, 'index']);
-                Route::post('/', [OrganizationUserController::class, 'store']);
+                Route::group(['prefix' => 'members'], function() {
+                    Route::get('/', [OrganizationUserController::class, 'index']);
+                    Route::post('/', [OrganizationUserController::class, 'store']);
 
-                Route::group(['prefix' => '{member}'], function() {
-                    Route::get('/', [OrganizationUserController::class, 'show']);
-                    Route::put('/', [OrganizationUserController::class, 'update']);
-                    Route::delete('/', [OrganizationUserController::class, 'destroy']);
+                    Route::group(['prefix' => '{member}'], function() {
+                        Route::get('/', [OrganizationUserController::class, 'show']);
+                        Route::put('/', [OrganizationUserController::class, 'update']);
+                        Route::delete('/', [OrganizationUserController::class, 'destroy']);
+                    });
                 });
             });
         });
