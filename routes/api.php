@@ -10,10 +10,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:api')->group(function() {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', fn (Request $request) => auth()->user());
+    Route::get('/user', fn () => auth()->user());
 
     Route::group(['prefix' => 'organization'], function() {
-        Route::get('/', fn (Request $request) => auth()->organization());
+        Route::get('/', fn () => auth()->organization());
         Route::post('/change', [OrganizationController::class, 'change']);
     });
 
