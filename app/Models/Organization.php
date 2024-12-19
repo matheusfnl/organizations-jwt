@@ -25,4 +25,8 @@ class Organization extends Model
     public function organizationUsers(): HasMany {
         return $this->hasMany(OrganizationUser::class);
     }
+
+    public function projects(): HasMany {
+        return $this->hasMany(Project::class);
+    }
 }

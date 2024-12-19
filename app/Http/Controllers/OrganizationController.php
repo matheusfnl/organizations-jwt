@@ -11,18 +11,18 @@ class OrganizationController extends Controller
 {
     public function index(Request $request)
     {
-        return Organization::where('owner_id', auth()->user()->id)->paginate(10);
+        return Organization::where('owner_id', auth()->id())->paginate(10);
     }
 
     public function store(OrganizationRequest $request)
     {
-        $user = auth()->user();
+        $userId = auth()->id();
         $organization = Organization::create([
             'name' => $request->name,
-            'owner_id' => $user->id,
+            'owner_id' => $userId,
         ]);
 
-        $organization->users()->attach($user->id, ['role' => 'owner']);
+        $organization->users()->attach($userId, ['role' => 'owner']);
 
         return $organization;
     }
@@ -31,7 +31,7 @@ class OrganizationController extends Controller
     {
         $user = auth()->user();
 
-        if ($request->organization_id === $user->organization_id) {
+        if ($request->organization_id === auth()->payload()->get('organization_id')) {
             abort(Response::HTTP_UNPROCESSABLE_ENTITY, 'Cannot change to the same organization');
         }
 
@@ -53,14 +53,14 @@ class OrganizationController extends Controller
 
     public function show(Request $request, Organization $organization)
     {
-        $this->authorizeUser($organization, auth()->user());
+        $this->authorizeUser($organization);
 
         return $organization;
     }
 
     public function update(OrganizationRequest $request, Organization $organization)
     {
-        $this->authorizeUser($organization, auth()->user());
+        $this->authorizeUser($organization);
 
         $organization->update(['name' => $request->name]);
 
@@ -69,17 +69,17 @@ class OrganizationController extends Controller
 
     public function destroy(Request $request, Organization $organization)
     {
-        $this->authorizeUser($organization, auth()->user());
+        $this->authorizeUser($organization);
 
         $organization->delete();
 
         return response(status: Response::HTTP_NO_CONTENT);
     }
 
-    private function authorizeUser(Organization $organization, User $user): void
+    private function authorizeUser(Organization $organization): void
     {
-        if ($organization->owner_id !== $user->id) {
-            abort(Response::HTTP_FORBIDDEN, 'Unauthorized');
+        if ($organization->owner_id !== auth()->id()) {
+            abort(Response::HTTP_UNAUTHORIZED, 'Unauthorized');
         }
     }
 }

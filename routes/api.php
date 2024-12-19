@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\OrganizationUserController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -36,6 +36,17 @@ Route::middleware('auth:api')->group(function() {
                     Route::delete('/', [OrganizationUserController::class, 'destroy']);
                 });
             });
+        });
+    });
+
+    Route::group(['prefix' => 'projects'], function() {
+        Route::get('/', [ProjectController::class, 'index']);
+        Route::post('/', [ProjectController::class, 'store']);
+
+        Route::group(['prefix' => '{project}'], function() {
+            Route::get('/', [ProjectController::class, 'show']);
+            Route::put('/', [ProjectController::class, 'update']);
+            Route::delete('/', [ProjectController::class, 'destroy']);
         });
     });
 });
